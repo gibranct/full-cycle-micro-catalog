@@ -6,7 +6,12 @@ const config = {
   connector: 'es',
   index: 'catalog',
   apiVersion: '7',
-  defaultSize: ''
+  defaultSize: '',
+  configuration: {
+    node: process.env.ELASTIC_SEARCH_HOST,
+    requestTimeout: process.env.ELASTIC_SEARCH_TIMEOUT,
+    pingTimeout: process.env.ELASTIC_SEARCH_PING_TIMEOUT,
+  },
 };
 
 // Observe application's life cycle to disconnect the datasource when
@@ -14,8 +19,10 @@ const config = {
 // gracefully. The `stop()` method is inherited from `juggler.DataSource`.
 // Learn more at https://loopback.io/doc/en/lb4/Life-cycle.html
 @lifeCycleObserver('datasource')
-export class Esv7DataSource extends juggler.DataSource
-  implements LifeCycleObserver {
+export class Esv7DataSource
+  extends juggler.DataSource
+  implements LifeCycleObserver
+{
   static dataSourceName = 'esv7';
   static readonly defaultConfig = config;
 
