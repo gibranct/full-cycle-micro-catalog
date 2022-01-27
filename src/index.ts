@@ -1,5 +1,7 @@
-import {ApplicationConfig, MicroCatalogApplication} from './application';
 import './bootstrap';
+import {ApplicationConfig} from '@loopback/core';
+import {MicroCatalogApplication} from './application';
+import {CategoryRepository} from './repositories';
 
 export * from './application';
 
@@ -7,6 +9,8 @@ export async function main(options: ApplicationConfig = {}) {
   const app = new MicroCatalogApplication(options);
   await app.boot();
   await app.start();
+
+  app.repository(CategoryRepository);
 
   const url = app.restServer.url;
   console.log(`Server is running at ${url}`);
