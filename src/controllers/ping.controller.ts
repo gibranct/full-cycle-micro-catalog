@@ -1,11 +1,16 @@
-import {ClassDecoratorFactory, inject, MetadataInspector} from '@loopback/core';
+import {Category} from './../models/category.model';
+import {inject} from '@loopback/core';
+import {repository} from '@loopback/repository';
 import {
   get,
+  post,
   Request,
+  requestBody,
   response,
   ResponseObject,
   RestBindings,
 } from '@loopback/rest';
+import {CategoryRepository} from '../repositories';
 
 /**
  * OpenAPI response for ping()
@@ -33,23 +38,11 @@ const PING_RESPONSE: ResponseObject = {
     },
   },
 };
-
-interface MyClassMetaData {
-  name: string;
-}
-
-function myClassDecorator(spec: MyClassMetaData): ClassDecorator {
-  const factory = new ClassDecoratorFactory<MyClassMetaData>(
-    'medata-data-my-class-decorator',
-    spec,
-  );
-
-  return factory.create();
-}
-
-@myClassDecorator({name: 'code education'})
 export class PingController {
-  constructor(@inject(RestBindings.Http.REQUEST) private req: Request) {}
+  constructor(
+    @inject(RestBindings.Http.REQUEST) private req: Request,
+    @repository(CategoryRepository) private categoryRepo: CategoryRepository,
+  ) {}
 
   @get('/ping')
   @response(200, PING_RESPONSE)
@@ -61,11 +54,14 @@ export class PingController {
       headers: Object.assign({}, this.req.headers),
     };
   }
+
+  @get('/categories')
+  async index() {
+    return this.categoryRepo.find();
+  }
+
+  @post('/categories')
+  async store(@requestBody() body: Category) {
+    return this.categoryRepo.create(body);
+  }
 }
-
-const meta = MetadataInspector.getClassMetadata(
-  'medata-data-my-class-decorator',
-  PingController,
-);
-
-console.log(meta);
